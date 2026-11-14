@@ -94,6 +94,11 @@ CodeRabbit result: 1 nitpick ("Trivial · Maintainability · Quick win"), merge 
 its comment was useful and told me exactly how to fix it. It was worse on user-facing
 behaviour: it did not mention that the streak shows 0 in the morning, which I find annoying.
 
+**Fixed after review:** [`773ea52`](https://github.com/mohamad-abdullah-710/week6-code-review/commit/773ea52)
+adds a `temp_db` fixture (`tmp_path` database), so the streak tests no longer write to
+`habits.db` (the real database had 44 habits before and after the tests). CI:
+[success](https://github.com/mohamad-abdullah-710/week6-code-review/actions/runs/43641778488).
+
 ### PR 2 — Validation
 CodeRabbit result: **"No actionable comments were generated"**, merge risk "Minimal". Its
 walkthrough summarised the change correctly (trimmed names, ASCII `YYYY-MM-DD`, real
@@ -111,6 +116,11 @@ calendar dates, leap-day test).
 **Where the AI was better / worse:** Worse. CodeRabbit said there were no issues but missed
 a real bug (future dates are accepted). This makes me trust it less: CodeRabbit is helpful,
 but its reviews shouldn't be trusted completely without manual testing.
+
+**Fixed after review:** [`0ead231`](https://github.com/mohamad-abdullah-710/week6-code-review/commit/0ead231)
+rejects check-in days in the future with 422 (`day '2030-01-01' is in the future`) and adds
+tests for future days and for today being accepted. CI:
+[success](https://github.com/mohamad-abdullah-710/week6-code-review/actions/runs/43641775925).
 
 Setup note: CodeRabbit first did not review either PR because it was installed on a
 different GitHub account (`mohamdwork`) than the repo owner (`mohamad-abdullah-710`).
