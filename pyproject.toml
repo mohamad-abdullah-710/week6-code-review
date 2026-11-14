@@ -1,0 +1,16 @@
+# Settings for the guardrail tools, so they behave the same on every machine and in CI.
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/W = style errors and warnings, F = real bugs (unused imports, undefined names),
+# I = import order, B = common bug patterns (bugbear).
+select = ["E", "W", "F", "I", "B"]
+# black already controls line length, so ruff shouldn't complain about it too.
+ignore = ["E501"]

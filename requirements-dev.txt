@@ -1,0 +1,4 @@
+# Tools for checking the code (not needed to run the app).
+# Pinned so local runs and CI use exactly the same versions.
+black==26.10.1
+ruff==0.17.5
