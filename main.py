@@ -60,6 +60,11 @@ class HabitIn(BaseModel):
         return value
 
 
+def today() -> date:
+    """Return today's date. Kept as a function so tests can replace it."""
+    return date.today()
+
+
 # fullmatch + ASCII: no trailing newline and no non-English digits slip through.
 DAY_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}", re.ASCII)
 
@@ -74,9 +79,11 @@ class CheckinIn(BaseModel):
         if not DAY_FORMAT.fullmatch(value):
             raise ValueError("day must be a date in YYYY-MM-DD format")
         try:
-            date.fromisoformat(value)
+            parsed = date.fromisoformat(value)
         except ValueError:
             raise ValueError(f"day {value!r} is not a real calendar date") from None
+        if parsed > today():
+            raise ValueError(f"day {value!r} is in the future")
         return value
 
 

@@ -1,6 +1,9 @@
+from datetime import date
+
 import pytest
 from fastapi.testclient import TestClient
 
+import main
 from main import app
 
 client = TestClient(app)
@@ -73,5 +76,21 @@ def test_checkin_rejects_impossible_date(day):
 
 def test_checkin_accepts_leap_day():
     hid = client.post("/habits", json={"name": "Validation test"}).json()["id"]
-    r = client.post(f"/habits/{hid}/checkin", json={"day": "2028-02-29"})
+    r = client.post(f"/habits/{hid}/checkin", json={"day": "2024-02-29"})
+    assert r.status_code == 200
+
+
+@pytest.mark.parametrize("day", ["2026-09-23", "2030-01-01"])
+def test_checkin_rejects_future_day(monkeypatch, day):
+    monkeypatch.setattr(main, "today", lambda: date(2026, 9, 22))
+    hid = client.post("/habits", json={"name": "Validation test"}).json()["id"]
+    r = client.post(f"/habits/{hid}/checkin", json={"day": day})
+    assert r.status_code == 422
+    assert "is in the future" in r.text
+
+
+def test_checkin_accepts_today(monkeypatch):
+    monkeypatch.setattr(main, "today", lambda: date(2026, 9, 22))
+    hid = client.post("/habits", json={"name": "Validation test"}).json()["id"]
+    r = client.post(f"/habits/{hid}/checkin", json={"day": "2026-09-22"})
     assert r.status_code == 200
