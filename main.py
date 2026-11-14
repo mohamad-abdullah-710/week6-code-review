@@ -10,12 +10,14 @@ Test:
     pytest
 """
 
+import re
 import sqlite3
 from contextlib import closing
+from datetime import date
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 DB_PATH = Path(__file__).parent / "habits.db"
 
@@ -49,9 +51,33 @@ init_db()
 class HabitIn(BaseModel):
     name: str
 
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("habit name must not be empty")
+        return value
+
+
+# fullmatch + ASCII: no trailing newline and no non-English digits slip through.
+DAY_FORMAT = re.compile(r"\d{4}-\d{2}-\d{2}", re.ASCII)
+
 
 class CheckinIn(BaseModel):
     day: str  # ISO date, e.g. "2026-09-22"
+
+    @field_validator("day")
+    @classmethod
+    def day_is_iso_date(cls, value: str) -> str:
+        # The regex rejects other formats Python accepts, like "20260922".
+        if not DAY_FORMAT.fullmatch(value):
+            raise ValueError("day must be a date in YYYY-MM-DD format")
+        try:
+            date.fromisoformat(value)
+        except ValueError:
+            raise ValueError(f"day {value!r} is not a real calendar date") from None
+        return value
 
 
 @app.post("/habits")
